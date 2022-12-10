@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ELASTICSEARCH
+  template:
+    metadata:
+      name: elasticsearch-lab
+      labels:
+        app: ELASTICSEARCH
+    spec:
+      hostname: elasticsearch
+      containers:
+        - name: elasticsearch
+          image: elasticsearch:8.5.2
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elasticsearch-data-vol
+#            - mountPath: /usr/share/elasticsearch/config
+#              name: elasticsearch-config-vol
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: xpack.security.enabled
+              value: "false"
+      volumes:
+        - name: elasticsearch-data-vol
+          persistentVolumeClaim:
+            claimName: elasticsearch-data-pvc
+#        - name: elasticsearch-config-vol
+#          persistentVolumeClaim:
+#            claimName: elasticsearch-config-pvc
+      restartPolicy: Always
